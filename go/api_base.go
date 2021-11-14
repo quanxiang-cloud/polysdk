@@ -58,8 +58,8 @@ type BodyBase struct {
 	Hide interface{} `json:"_hide,omitempty"`
 }
 
-// HttpResponse is the response of http request
-type HttpResponse struct {
+// HTTPResponse is the response of http request
+type HTTPResponse struct {
 	StatusCode int
 	Status     string
 	Body       json.RawMessage
@@ -67,13 +67,13 @@ type HttpResponse struct {
 }
 
 // DoRequestAPI is the custom api for access apis from polyapi
-func (c *PolyClient) DoRequestAPI(apiPath string, method string, header Header, body interface{}) (*HttpResponse, error) {
+func (c *PolyClient) DoRequestAPI(apiPath string, method string, header Header, body interface{}) (*HTTPResponse, error) {
 	bodyBytes, err := c.genHeaderSignature(header, body)
 	if err != nil {
 		return nil, err
 	}
 
-	resp, err := HttpRequest(c.remoteURL+apiPath, method, header, bodyBytes)
+	resp, err := HTTPRequest(c.remoteURL+apiPath, method, header, bodyBytes)
 	if err != nil {
 		return nil, err
 	}
@@ -83,7 +83,7 @@ func (c *PolyClient) DoRequestAPI(apiPath string, method string, header Header, 
 	}
 	resp.Body.Close()
 
-	r := &HttpResponse{
+	r := &HTTPResponse{
 		Body:       respBody,
 		Header:     resp.Header,
 		Status:     resp.Status,
@@ -100,7 +100,7 @@ func (b CustomBody) Add(name string, data interface{}) bool {
 	return b.add(name, data, false)
 }
 
-// Add insert a new field to custom body
+// Set insert a new field to custom body forced
 func (b CustomBody) Set(name string, data interface{}) bool {
 	return b.add(name, data, true)
 }
@@ -137,8 +137,9 @@ func (c *PolyClient) GenBodySignature() json.RawMessage {
 	return json.RawMessage(c.bodySign.genBodySignature())
 }
 
-func HttpRequest(reqURL, method string, header Header, data []byte) (*http.Response, error) {
-	if err := validateHttpMethod(method); err != nil {
+// HTTPRequest do a custom http request
+func HTTPRequest(reqURL, method string, header Header, data []byte) (*http.Response, error) {
+	if err := validateHTTPMethod(method); err != nil {
 		return nil, err
 	}
 
@@ -188,7 +189,7 @@ func (c *PolyClient) genHeaderSignature(header Header, body interface{}) ([]byte
 	return b, nil
 }
 
-func validateHttpMethod(method string) error {
+func validateHTTPMethod(method string) error {
 	switch method {
 	case MethodGet, MethodHead, MethodPost,
 		MethodPut, MethodPatch, MethodDelete,

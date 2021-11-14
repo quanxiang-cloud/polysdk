@@ -25,12 +25,12 @@ func MyHexDeviceID() string {
 // It was hashed by hostName+macAddrs.
 // It use env hex value "ENV_POLY_DEVICE_ID" firstly.
 func MyDeviceID() []byte {
-	return myDeviceId()
+	return myDeviceID()
 }
 
 //------------------------------------------------------------------------------
 
-func myDeviceId() []byte {
+func myDeviceID() []byte {
 	deviceID := os.Getenv(EnvPolyDeveceID)
 	if deviceID != "" && len(deviceID) == hash.DefaultSize()*2 {
 		if b, err := hex.DecodeString(deviceID); err != nil {

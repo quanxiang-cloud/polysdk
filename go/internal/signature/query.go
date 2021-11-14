@@ -42,7 +42,7 @@ func buildQuery(name string, d interface{}, buf *bytes.Buffer, depth int) error 
 		writeSingle(v)
 	case map[string]interface{}:
 		names := make([]string, 0, len(v))
-		for k, _ := range v {
+		for k := range v {
 			names = append(names, k)
 		}
 		sort.Strings(names)

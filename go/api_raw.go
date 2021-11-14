@@ -15,7 +15,7 @@ const (
 
 // RawAPIRequest request raw api from polyapi
 // apiPath is the full namespace of raw api. eg: /system/raw/sample_raw_api
-func (c *PolyClient) RawAPIRequest(fullNamespace string, method string, header Header, data interface{}) (*HttpResponse, error) {
+func (c *PolyClient) RawAPIRequest(fullNamespace string, method string, header Header, data interface{}) (*HTTPResponse, error) {
 	uri := apipath.Join(apipath.APIRawRequest, fullNamespace)
 	return c.DoRequestAPI(uri, method, header, data)
 }
@@ -28,7 +28,7 @@ type apiDocReq struct {
 
 // RawAPIDoc request raw api from polyapi
 // fullNamespace is the full namespace of raw api. eg: /system/raw/sample_raw_api
-func (c *PolyClient) RawAPIDoc(fullNamespace string, docType string, titleFirst bool) (*HttpResponse, error) {
+func (c *PolyClient) RawAPIDoc(fullNamespace string, docType string, titleFirst bool) (*HTTPResponse, error) {
 	d := apiDocReq{
 		BodyBase: BodyBase{
 			Signature: c.bodySign.genBodySignature(),

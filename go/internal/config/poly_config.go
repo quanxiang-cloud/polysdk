@@ -46,6 +46,7 @@ type PolyKeyConfig struct {
 	SecretKey   string `json:"secretKey"`
 }
 
+// Empty check if key is empty
 func (k PolyKeyConfig) Empty() bool {
 	return k.AccessKeyID == "" && k.SecretKey == ""
 }
