@@ -3,6 +3,7 @@ package signature
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/url"
 	"sort"
@@ -19,7 +20,7 @@ func ToQuery(data interface{}) string {
 
 func buildQuery(name string, d interface{}, buf *bytes.Buffer, depth int) error {
 	if depth >= 10 {
-		panic("out of recursion")
+		return errors.New("buildQuery out of recursion")
 	}
 	writeSingle := func(v interface{}) {
 		buf.WriteString(fmt.Sprintf("&%s=", name))
