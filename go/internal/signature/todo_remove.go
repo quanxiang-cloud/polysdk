@@ -7,6 +7,7 @@ import (
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"net/url"
 	"reflect"
@@ -32,6 +33,19 @@ func Signature(src interface{}, key string) (string, error) {
 	signature := base64.RawURLEncoding.EncodeToString(body)
 
 	return signature, nil
+}
+
+func _toRawQuery(src interface{}) string {
+	b, ok := src.([]byte)
+	if !ok {
+		return ""
+	}
+	var d interface{}
+	if err := json.Unmarshal(b, &d); err != nil {
+		return err.Error()
+	}
+	//fmt.Printf("%#v\n", d)
+	return dismantling("", d)
 }
 
 func dismantlingBase(key string, value interface{}) string {

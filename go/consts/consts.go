@@ -11,12 +11,7 @@ const (
 	EnvPolyDeveceID   = "ENV_POLY_DEVICE_ID"
 )
 
-// header define
-const (
-	HeaderSignature = "Signature" // "Signature" in header
-)
-
-// hash difficalty config
+// hash difficulty config
 const (
 	HashTimeEstimateMS = 500
 )

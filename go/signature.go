@@ -55,11 +55,11 @@ type signatureTemplate struct {
 }
 
 // replace timestamp in template and return new bytes
-func (t *signatureTemplate) genBodySignature() []byte {
+func (t *signatureTemplate) genBodySignature() json.RawMessage {
 	b := []byte(t.signatureTemplate)
 	toReplace := b[t.timestampIndex : t.timestampIndex+len(TimeISO8601)]
 	copy(toReplace, []byte(timestamp())) // replace timestamp in template
-	return b
+	return json.RawMessage(b)
 }
 
 func timestamp() string {

@@ -7,8 +7,16 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-	"polysdk/consts"
 	"polysdk/internal/signature"
+)
+
+// header define
+const (
+	HeaderSignature = "Signature"  // "Signature" in header
+	BodySinature    = "_signature" // _signature in body
+	BodyHide        = "_hide"      // _hide in body
+
+	HeaderContentType = "Content-Type"
 )
 
 // Header exports
@@ -27,11 +35,26 @@ const (
 	MethodTrace   = http.MethodTrace
 )
 
+// Content-Type MIME of the most common data formats.
+const (
+	MIMEJSON              = "application/json"
+	MIMEHTML              = "text/html"
+	MIMEXML               = "application/xml"
+	MIMEXML2              = "text/xml"
+	MIMEPlain             = "text/plain"
+	MIMEPOSTForm          = "application/x-www-form-urlencoded"
+	MIMEMultipartPOSTForm = "multipart/form-data"
+	MIMEPROTOBUF          = "application/x-protobuf"
+	MIMEMSGPACK           = "application/x-msgpack"
+	MIMEMSGPACK2          = "application/msgpack"
+	MIMEYAML              = "application/x-yaml"
+)
+
 // BodyBase is base struct of body
 type BodyBase struct {
 	// {"version":1,"method":"HmacSHA256","access_key_id":"$access_key_id$","timestamp":"2006-01-02T15:04:05-0700"}
 	Signature json.RawMessage `json:"_signature"`
-	// path and other parameter
+	// path and other hide parameter
 	Hide interface{} `json:"_hide,omitempty"`
 }
 
@@ -43,6 +66,7 @@ type HttpResponse struct {
 	Header     Header
 }
 
+// DoRequestAPI is the custom api for access apis from polyapi
 func (c *PolyClient) DoRequestAPI(apiPath string, method string, header Header, body interface{}) (*HttpResponse, error) {
 	bodyBytes, err := c.genHeaderSignature(header, body)
 	if err != nil {
@@ -66,6 +90,51 @@ func (c *PolyClient) DoRequestAPI(apiPath string, method string, header Header, 
 		StatusCode: resp.StatusCode,
 	}
 	return r, nil
+}
+
+// CustomBody is custom body
+type CustomBody map[string]interface{}
+
+// Add insert a new field to custom body
+func (b CustomBody) Add(name string, data interface{}) bool {
+	return b.add(name, data, false)
+}
+
+// Add insert a new field to custom body
+func (b CustomBody) Set(name string, data interface{}) bool {
+	return b.add(name, data, true)
+}
+
+// SetSignature set bodySignature for custome body
+func (b CustomBody) SetSignature(c *PolyClient) bool {
+	return b.add(BodySinature, c.bodySign.genBodySignature(), true)
+}
+
+func (b CustomBody) add(name string, data interface{}, force bool) bool {
+	if _, ok := b[name]; !ok && !force {
+		return false
+	}
+	b[name] = data
+	return true
+}
+
+// NewCustomBody generate a custom body with signature
+func (c *PolyClient) NewCustomBody() CustomBody {
+	return CustomBody{
+		BodySinature: c.GenBodySignature(),
+	}
+}
+
+// MakeBodyBase create a BodyBase with signature
+func (c *PolyClient) MakeBodyBase() BodyBase {
+	return BodyBase{
+		Signature: c.GenBodySignature(),
+	}
+}
+
+// GenBodySignature generate body signature
+func (c *PolyClient) GenBodySignature() json.RawMessage {
+	return json.RawMessage(c.bodySign.genBodySignature())
 }
 
 func HttpRequest(reqURL, method string, header Header, data []byte) (*http.Response, error) {
@@ -100,10 +169,6 @@ func HttpRequest(reqURL, method string, header Header, data []byte) (*http.Respo
 
 //------------------------------------------------------------------------------
 
-func (c *PolyClient) GenBodySignature() json.RawMessage {
-	return json.RawMessage(c.bodySign.genBodySignature())
-}
-
 func (c *PolyClient) genHeaderSignature(header Header, body interface{}) ([]byte, error) {
 	var b []byte
 	var err error
@@ -119,7 +184,7 @@ func (c *PolyClient) genHeaderSignature(header Header, body interface{}) ([]byte
 	if err != nil {
 		return nil, err
 	}
-	header.Set(consts.HeaderSignature, signature)
+	header.Set(HeaderSignature, signature)
 	return b, nil
 }
 

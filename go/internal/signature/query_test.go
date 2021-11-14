@@ -3,7 +3,7 @@ package signature
 import (
 	"encoding/json"
 	"fmt"
-	"polysdk/config"
+	"polysdk/internal/config"
 	"testing"
 )
 
