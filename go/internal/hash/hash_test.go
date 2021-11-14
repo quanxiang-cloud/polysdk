@@ -29,11 +29,11 @@ func TestHash(t *testing.T) {
 	cases := []*testCase{
 		&testCase{
 			src:    []string{"foo", "bar"},
-			expect: "7f4eeee9b6bda8d679516686b8f4ef4721fd2515e8b204ed832317e733151454",
+			expect: "7e4f39bab0c9e035c733ed4b19c4147e61116b60222a189ac2e2eec57043e485",
 		},
 		&testCase{
 			src:    []string{"foobar"},
-			expect: "40ab974761e4d9ab9e1067669b137224dd2a0df85ce525b6ea0288be55b3e6fe",
+			expect: "e8de1a461e3f686718d1c66ae9874c2fcfaa9119ae75738f17de15c1369a150d",
 		},
 	}
 

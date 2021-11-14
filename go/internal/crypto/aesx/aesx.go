@@ -6,7 +6,9 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 	"errors"
+	"polysdk/consts"
 	"polysdk/internal/hash"
+	"time"
 )
 
 var (
@@ -20,7 +22,7 @@ const (
 	ivSize            = aes.BlockSize
 	appendSize        = 1
 	version      byte = 1
-	cryptoRounds      = 16777216 / 100000 //2^24
+	cryptoRounds      = 30_000_000 * consts.HashTimeEstimateMS / int(time.Second/time.Millisecond) //2^25
 )
 
 // EncodeString encode a string with strong aes crypto.

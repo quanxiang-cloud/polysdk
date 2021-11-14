@@ -15,3 +15,8 @@ const (
 const (
 	HeaderSignature = "Signature" // "Signature" in header
 )
+
+// hash difficalty config
+const (
+	HashTimeEstimateMS = 500
+)

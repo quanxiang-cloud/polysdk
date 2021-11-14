@@ -5,11 +5,13 @@ import (
 	"encoding/binary"
 	"encoding/hex"
 	"fmt"
+	"polysdk/consts"
+	"time"
 )
 
 const (
-	hashRounds   = 524288 / 1000 // defatut hash rounds, 2^19
-	hashIndex    = 97351831      // default salt index
+	hashRounds   = 1_000_000 * consts.HashTimeEstimateMS / int(time.Second/time.Millisecond) // defatut hash rounds, 2^20
+	hashIndex    = 97351831                                                                  // default salt index
 	hashSaltName = "poly_salt_fa391be3"
 )
 
