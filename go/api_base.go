@@ -73,7 +73,7 @@ func (c *PolyClient) DoRequestAPI(apiPath string, method string, header Header, 
 		return nil, err
 	}
 
-	resp, err := HTTPRequest(c.remoteURL+apiPath, method, header, bodyBytes)
+	resp, err := c.HTTPRequest(c.remoteURL+apiPath, method, header, bodyBytes)
 	if err != nil {
 		return nil, err
 	}
@@ -138,7 +138,7 @@ func (c *PolyClient) GenBodySignature() json.RawMessage {
 }
 
 // HTTPRequest do a custom http request
-func HTTPRequest(reqURL, method string, header Header, data []byte) (*http.Response, error) {
+func (c *PolyClient) HTTPRequest(reqURL, method string, header Header, data []byte) (*http.Response, error) {
 	if err := validateHTTPMethod(method); err != nil {
 		return nil, err
 	}
@@ -161,7 +161,7 @@ func HTTPRequest(reqURL, method string, header Header, data []byte) (*http.Respo
 	}
 	req.Header = header
 
-	resp, err := http.DefaultClient.Do(req) // http.Get(url)
+	resp, err := c.httpClient.Do(req)
 	if err != nil {
 		return nil, err
 	}
