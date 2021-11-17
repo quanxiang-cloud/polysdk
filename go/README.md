@@ -5,7 +5,7 @@ polysdk-go is a client for polyapi.
 ## usage
 
 1. set environment value of ENV_POLY_CONFIG_PATH
-It will share config file fram tool and client.
+It will share config file from tool and client.
 ```
  set ENV_POLY_CONFIG_PATH=c:\data\poly_cfg.json
 ```
@@ -57,4 +57,4 @@ polykit v
 	polysdk.PrettyShow(r)
 ```
 
-~~ enjoy the sdk
+~~ enjoy this sdk!

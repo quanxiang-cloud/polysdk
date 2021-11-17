@@ -68,7 +68,7 @@ type HTTPResponse struct {
 
 // DoRequestAPI is the custom api for access apis from polyapi
 func (c *PolyClient) DoRequestAPI(apiPath string, method string, header Header, body interface{}) (*HTTPResponse, error) {
-	bodyBytes, err := c.genHeaderSignature(header, body)
+	bodyBytes, err := c.GenHeaderSignature(header, body)
 	if err != nil {
 		return nil, err
 	}
@@ -170,7 +170,8 @@ func (c *PolyClient) HTTPRequest(reqURL, method string, header Header, data []by
 
 //------------------------------------------------------------------------------
 
-func (c *PolyClient) genHeaderSignature(header Header, body interface{}) ([]byte, error) {
+// GenHeaderSignature create header.Signature form body and return body bytes
+func (c *PolyClient) GenHeaderSignature(header Header, body interface{}) ([]byte, error) {
 	var b []byte
 	var err error
 	switch d := body.(type) {

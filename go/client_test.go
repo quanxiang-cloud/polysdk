@@ -63,7 +63,7 @@ func _TestRawDoc(t *testing.T) {
 	polysdk.PrettyShow(r)
 }
 
-func TestPolyRequest(t *testing.T) {
+func _TestPolyRequest(t *testing.T) {
 	body := polysdk.CustomBody{
 		"appID":       "app1",
 		"name":        "app1Name",
