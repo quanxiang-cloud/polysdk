@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"net/url"
+	"polysdk/internal/polysign"
 	"sort"
 )
 
@@ -19,7 +20,7 @@ func ToQuery(data interface{}) string {
 }
 
 func buildQuery(name string, d interface{}, buf *bytes.Buffer, depth int) error {
-	if depth >= 10 {
+	if depth >= 20 {
 		return errors.New("buildQuery out of recursion")
 	}
 	writeSingle := func(v interface{}) {
@@ -31,7 +32,7 @@ func buildQuery(name string, d interface{}, buf *bytes.Buffer, depth int) error 
 		if err := json.Unmarshal(v, &x); err != nil {
 			return err
 		}
-		return buildQuery(name, x, buf, depth+1)
+		return buildQuery(name, x, buf, depth) // NOTE: dont increase depth here
 	}
 	switch v := d.(type) {
 	case string:
@@ -41,6 +42,25 @@ func buildQuery(name string, d interface{}, buf *bytes.Buffer, depth int) error 
 	case bool:
 		writeSingle(v)
 	case map[string]interface{}:
+		if depth == 0 {
+			// NOTE: dont treat raiseField as a child, raise up it's children to parent
+			const raiseField = polysign.XPolyRaiseUpFieldName
+			if raise, ok := v[raiseField]; ok {
+				delete(v, raiseField) //remove from parent
+				if mp, ok := raise.(map[string]interface{}); ok {
+					for k, c := range mp {
+						// TODO: handle duplication?
+						// if _, ok := v[k]; ok {
+						// 	return fmt.Errorf("duplicate field %s between root and raise up fields", k)
+						// }
+						v[k] = c
+					}
+				} else {
+					v[polysign.XPolyCustomerBodyRoot] = raise
+				}
+			}
+		}
+
 		names := make([]string, 0, len(v))
 		for k := range v {
 			names = append(names, k)

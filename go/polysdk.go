@@ -18,15 +18,17 @@ func NewPolyClient(configPath string) (*PolyClient, error) {
 	if err != nil {
 		return nil, err
 	}
-	bodySign, err := newSignatureTemplate(cfg.Key.AccessKeyID)
-	if err != nil {
-		return nil, err
-	}
+
+	// bodySign, err := newSignatureTemplate(cfg.Key.AccessKeyID)
+	// if err != nil {
+	// 	return nil, err
+	// }
 
 	return &PolyClient{
-		remoteURL: cfg.RemoteURL,
-		sign:      sign,
-		bodySign:  bodySign,
+		remoteURL:   cfg.RemoteURL,
+		accessKeyID: cfg.Key.AccessKeyID,
+		sign:        sign,
+		//bodySign:    bodySign,
 		httpClient: http.Client{
 			Transport: &http.Transport{
 				Dial: func(netw, addr string) (net.Conn, error) {
@@ -47,8 +49,9 @@ func NewPolyClient(configPath string) (*PolyClient, error) {
 
 // PolyClient is a client for polyapi
 type PolyClient struct {
-	remoteURL  string
-	sign       signature.Signer
-	bodySign   *signatureTemplate
+	remoteURL   string
+	accessKeyID string
+	sign        signature.Signer
+	//bodySign    *signatureTemplate
 	httpClient http.Client
 }

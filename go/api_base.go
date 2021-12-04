@@ -7,14 +7,15 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"polysdk/internal/polysign"
 	"polysdk/internal/signature"
 )
 
 // header define
 const (
-	HeaderSignature = "Signature"  // "Signature" in header
-	BodySinature    = "_signature" // _signature in body
-	BodyHide        = "_hide"      // _hide in body
+	// HeaderSignature = "Signature"  // "Signature" in header
+	// BodySinature    = "_signature" // _signature in body
+	// BodyHide        = "_hide"      // _hide in body
 
 	HeaderContentType = "Content-Type"
 )
@@ -53,9 +54,10 @@ const (
 // BodyBase is base struct of body
 type BodyBase struct {
 	// {"version":1,"method":"HmacSHA256","access_key_id":"$access_key_id$","timestamp":"2006-01-02T15:04:05-0700"}
-	Signature json.RawMessage `json:"_signature"`
+	//Signature json.RawMessage `json:"_signature"`
+
 	// path and other hide parameter
-	Hide interface{} `json:"_hide,omitempty"`
+	PolyHide map[string]interface{} `json:"$polyapi_hide$,omitempty"`
 }
 
 // HTTPResponse is the response of http request
@@ -105,10 +107,10 @@ func (b CustomBody) Set(name string, data interface{}) bool {
 	return b.add(name, data, true)
 }
 
-// SetSignature set bodySignature for custome body
-func (b CustomBody) SetSignature(c *PolyClient) bool {
-	return b.add(BodySinature, c.bodySign.genBodySignature(), true)
-}
+// // SetSignature set bodySignature for custome body
+// func (b CustomBody) SetSignature(c *PolyClient) bool {
+// 	return b.add(BodySinature, c.bodySign.genBodySignature(), true)
+// }
 
 func (b CustomBody) add(name string, data interface{}, force bool) bool {
 	if _, ok := b[name]; !ok && !force {
@@ -121,21 +123,21 @@ func (b CustomBody) add(name string, data interface{}, force bool) bool {
 // NewCustomBody generate a custom body with signature
 func (c *PolyClient) NewCustomBody() CustomBody {
 	return CustomBody{
-		BodySinature: c.GenBodySignature(),
+		//BodySinature: c.GenBodySignature(),
 	}
 }
 
 // MakeBodyBase create a BodyBase with signature
 func (c *PolyClient) MakeBodyBase() BodyBase {
 	return BodyBase{
-		Signature: c.GenBodySignature(),
+		//Signature: c.GenBodySignature(),
 	}
 }
 
-// GenBodySignature generate body signature
-func (c *PolyClient) GenBodySignature() json.RawMessage {
-	return json.RawMessage(c.bodySign.genBodySignature())
-}
+// // GenBodySignature generate body signature
+// func (c *PolyClient) GenBodySignature() json.RawMessage {
+// 	return json.RawMessage(c.bodySign.genBodySignature())
+// }
 
 // HTTPRequest do a custom http request
 func (c *PolyClient) HTTPRequest(reqURL, method string, header Header, data []byte) (*http.Response, error) {
@@ -182,11 +184,26 @@ func (c *PolyClient) GenHeaderSignature(header Header, body interface{}) ([]byte
 			return nil, err
 		}
 	}
-	signature, err := c.sign.Signature(b)
+
+	signInfo := polysign.PolySignatureInfo{
+		AccessKeyID: c.accessKeyID,
+		SignMethod:  polysign.XHeaderPolySignMethodVal,
+		SignVersion: polysign.XHeaderPolySignVersionVal,
+		Timestamp:   timestamp(),
+		Body:        b,
+	}
+
+	signature, err := c.sign.Signature(&signInfo)
 	if err != nil {
 		return nil, err
 	}
-	header.Set(HeaderSignature, signature)
+	header.Set(polysign.XHeaderPolySignVersion, signInfo.SignVersion)
+	header.Set(polysign.XHeaderPolySignMethod, signInfo.SignMethod)
+	header.Set(polysign.XHeaderPolySignKeyID, signInfo.AccessKeyID)
+	header.Set(polysign.XHeaderPolySignTimestamp, signInfo.Timestamp)
+
+	header.Set(polysign.XHeaderPolySignSignature, signature)
+
 	return b, nil
 }
 

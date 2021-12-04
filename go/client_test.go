@@ -21,6 +21,7 @@ func _TestClient(t *testing.T) {
 		"zone":       "pek3d",
 		"_signature": c.GenBodySignature(),
 		"active":     -1,
+		"name":       "test3",
 	}
 	polysdk.PrettyShow(body)
 
@@ -28,7 +29,8 @@ func _TestClient(t *testing.T) {
 	h.Set(polysdk.HeaderContentType, "application/json")
 
 	//uri := "/api/v1/polyapi/raw/request/system/app/jhdsk/customer/ns2/viewVM3"
-	uri := "/api/v1/polyapi/namespace/tree/system/app/jhdsk"
+	//uri := "/api/v1/polyapi/namespace/tree/system/app/jhdsk"
+	uri := "/api/v1/polyapi/namespace/create/system/app/swhnm/poly"
 	r, err := c.DoRequestAPI(uri, polysdk.MethodPost, h, body)
 	if err != nil {
 		panic(err)
@@ -36,7 +38,7 @@ func _TestClient(t *testing.T) {
 	polysdk.PrettyShow(r)
 }
 
-func _TestRawRequest(t *testing.T) {
+func TestRawRequest(t *testing.T) {
 	body := polysdk.CustomBody{
 		"time_stamp":         polysdk.Timestamp(""),
 		"zone":               "pek3d",
@@ -46,7 +48,8 @@ func _TestRawRequest(t *testing.T) {
 	h := polysdk.Header{}
 	h.Set(polysdk.HeaderContentType, "application/json")
 
-	uri := "/system/app/jhdsk/customer/ns2/viewVM3"
+	//uri := "/system/app/jhdsk/customer/ns2/viewVM3"
+	uri := "/system/app/2zfvz/customer/three_group/timeTicker"
 	r, err := c.RawAPIRequest(uri, polysdk.MethodPost, h, body)
 	if err != nil {
 		panic(err)

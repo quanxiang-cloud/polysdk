@@ -16,7 +16,7 @@ func (c *PolyClient) PolyAPIRequest(fullNamespace string, method string, header 
 func (c *PolyClient) PolyAPIDoc(fullNamespace string, docType string, titleFirst bool) (*HTTPResponse, error) {
 	d := apiDocReq{
 		BodyBase: BodyBase{
-			Signature: c.bodySign.genBodySignature(),
+			//Signature: c.bodySign.genBodySignature(),
 		},
 		DocType:    docType,
 		TitleFirst: titleFirst,

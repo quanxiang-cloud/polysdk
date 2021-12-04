@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"polysdk/internal/config"
+	"polysdk/internal/polysign"
 	"testing"
 )
 
@@ -139,5 +140,57 @@ func TestToQuery(t *testing.T) {
 	if expect != query {
 		fmt.Println(string(b))
 		t.Errorf("TestToQuery:\nexpect %s\ngot    %s\n", expect, query)
+	}
+}
+
+func TestToQueryExt(t *testing.T) {
+	type testCase struct {
+		body   interface{}
+		expect string
+	}
+	testCases := []*testCase{
+		&testCase{
+			body: map[string]interface{}{
+				polysign.XHeaderPolySignKeyID:  "foo",
+				polysign.XPolyRaiseUpFieldName: "stringBody",
+			},
+			expect: "$body$=stringBody&X-Polysign-Access-Key-Id=foo",
+		},
+		&testCase{
+			body: map[string]interface{}{
+				polysign.XHeaderPolySignKeyID:  "foo",
+				polysign.XPolyRaiseUpFieldName: []string{"foo", "bar"},
+			},
+			expect: "$body$.1=foo&$body$.2=bar&X-Polysign-Access-Key-Id=foo",
+		},
+		&testCase{
+			body: map[string]interface{}{
+				polysign.XHeaderPolySignKeyID: "foo",
+				polysign.XPolyRaiseUpFieldName: map[string]interface{}{
+					"a": "foo",
+					polysign.XPolyBodyHideArgs: map[string]interface{}{
+						"app": "foo",
+					},
+					polysign.XPolyCustomerBodyRoot: "bar",
+				},
+			},
+			expect: "$body$=bar&$polyapi_hide$.app=foo&X-Polysign-Access-Key-Id=foo&a=foo",
+		},
+		&testCase{
+			body: map[string]interface{}{
+				polysign.XHeaderPolySignKeyID: "foo",
+				polysign.XPolyRaiseUpFieldName: map[string]interface{}{
+					"a":                           "foo",
+					polysign.XHeaderPolySignKeyID: "bar",
+				},
+			},
+			expect: "X-Polysign-Access-Key-Id=bar&a=foo",
+		},
+	}
+	for i, v := range testCases {
+		got := ToQuery(v.body)
+		if got != v.expect {
+			t.Errorf("case %d, expect %q\ngot %q", i+1, v.expect, got)
+		}
 	}
 }
