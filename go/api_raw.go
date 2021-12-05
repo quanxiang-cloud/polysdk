@@ -16,7 +16,7 @@ const (
 // RawAPIRequest request raw api from polyapi
 // apiPath is the full namespace of raw api. eg: /system/raw/sample_raw_api
 func (c *PolyClient) RawAPIRequest(fullNamespace string, method string, header Header, data interface{}) (*HTTPResponse, error) {
-	uri := apipath.Join(apipath.APIRawRequest, fullNamespace)
+	uri := apipath.Join(apipath.APIRequest, fullNamespace)
 	return c.DoRequestAPI(uri, method, header, data)
 }
 
@@ -39,6 +39,6 @@ func (c *PolyClient) RawAPIDoc(fullNamespace string, docType string, titleFirst 
 	header := Header{
 		HeaderContentType: []string{MIMEJSON},
 	}
-	uri := apipath.Join(apipath.APIRawDoc, fullNamespace)
+	uri := apipath.Join(apipath.APIDoc, fullNamespace)
 	return c.DoRequestAPI(uri, MethodPost, header, d)
 }

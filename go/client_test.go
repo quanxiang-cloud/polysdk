@@ -19,7 +19,6 @@ func _TestClient(t *testing.T) {
 	body := map[string]interface{}{
 		"time_stamp": polysdk.Timestamp(""),
 		"zone":       "pek3d",
-		"_signature": c.GenBodySignature(),
 		"active":     -1,
 		"name":       "test3",
 	}
@@ -40,16 +39,21 @@ func _TestClient(t *testing.T) {
 
 func TestRawRequest(t *testing.T) {
 	body := polysdk.CustomBody{
-		"time_stamp":         polysdk.Timestamp(""),
-		"zone":               "pek3d",
-		polysdk.BodySinature: c.GenBodySignature(),
+		//"time_stamp": polysdk.Timestamp(""),
+		//"zone":       "pek3d",
+		polysdk.XPolyBodyHideArgs: map[string]interface{}{
+			"app": "appX",
+		},
+		polysdk.XPolyCustomerBodyRoot: "foo",
 	}
 
 	h := polysdk.Header{}
 	h.Set(polysdk.HeaderContentType, "application/json")
 
 	//uri := "/system/app/jhdsk/customer/ns2/viewVM3"
-	uri := "/system/app/2zfvz/customer/three_group/timeTicker"
+	//uri := "/system/app/2zfvz/customer/three_group/timeTicker"
+	//uri := "/system/app/gskgx/raw/customer/a/bb.r"
+	uri := "/system/app/gskgx/raw/inner/form/form/2q2bh_get.r"
 	r, err := c.RawAPIRequest(uri, polysdk.MethodPost, h, body)
 	if err != nil {
 		panic(err)
@@ -58,8 +62,8 @@ func TestRawRequest(t *testing.T) {
 }
 
 func _TestRawDoc(t *testing.T) {
-	apiPath := "/system/form/base_pergroup_create"
-	r, err := c.RawAPIDoc(apiPath, polysdk.DocSwag, false)
+	apiPath := "/system/app/gskgx/raw/customer/a/bb.r"
+	r, err := c.RawAPIDoc(apiPath, polysdk.DocJavascript, true)
 	if err != nil {
 		panic(err)
 	}
@@ -83,7 +87,6 @@ func _TestPolyRequest(t *testing.T) {
 				"name": "somename2",
 			},
 		},
-		polysdk.BodySinature: c.GenBodySignature(),
 	}
 	h := polysdk.Header{}
 	h.Set(polysdk.HeaderContentType, "application/json")
