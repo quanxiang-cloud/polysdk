@@ -33,8 +33,8 @@ const (
 
 	// XPolyRaiseUpFieldName is a special filed name.
 	// NOTE: if a field with this name, generate query will raiseup its children
-	// eg: {"a":1,"b":2} is the same as {"a":1,"$$*_*$$":{"b":2}}
-	XPolyRaiseUpFieldName = "$$*_*$$"
+	// eg: {"a":1,"b":2} is the same as {"a":1,"$$*_raise_*$$":{"b":2}}
+	XPolyRaiseUpFieldName = "$$*_raise_*$$"
 )
 
 // PolySignatureInfo is the data structure for signature generator
@@ -46,5 +46,5 @@ type PolySignatureInfo struct {
 
 	// NOTE: body XPolyIgnoreFieldName defined, signature will ignore name for this field
 	// Body:{Child:foo} will generate as Child=foo in query
-	Body json.RawMessage `json:"$$*_*$$"`
+	Body json.RawMessage `json:"$$*_raise_*$$"`
 }
