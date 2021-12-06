@@ -27,7 +27,7 @@ func TestBodyToQuery(t *testing.T) {
 	b, _ := json.Marshal(v)
 	s := string(b)
 	fmt.Println(s)
-	q := ToQuery(v)
+	q, _ := ToQuery(v)
 	fmt.Println(q)
 	fmt.Println(dismantling("", v))
 	var st = struct {
@@ -135,9 +135,9 @@ func TestToQuery(t *testing.T) {
 		panic(err)
 	}
 
-	query := ToQuery(d)
+	query, err := ToQuery(d)
 	expect := `a=f&b.1=foo&b.2=bar&c.c1=1&c.c2.c21=foo&c.c2.c22.1.1=1&c.c2.c22.1.2=foo&c.c2.c22.2.c221=foo&c.c2.c22.2.c222=true&d.1.c21=foo&d.1.c22.1.1=1&d.1.c22.1.2=foo&d.1.c22.2.c221=foo&d.1.c22.2.c222=true&d.2.1.1=1&d.2.1.2=foo&d.2.2.c221.1=foo&d.2.2.c221.2=bar&d.2.2.c222=true`
-	if expect != query {
+	if expect != query || err != nil {
 		fmt.Println(string(b))
 		t.Errorf("TestToQuery:\nexpect %s\ngot    %s\n", expect, query)
 	}
@@ -145,8 +145,9 @@ func TestToQuery(t *testing.T) {
 
 func TestToQueryExt(t *testing.T) {
 	type testCase struct {
-		body   interface{}
-		expect string
+		body      interface{}
+		expect    string
+		expectErr bool
 	}
 	testCases := []*testCase{
 		&testCase{
@@ -184,13 +185,14 @@ func TestToQueryExt(t *testing.T) {
 					polysign.XHeaderPolySignKeyID: "bar",
 				},
 			},
-			expect: "X-Polysign-Access-Key-Id=bar&a=foo",
+			expect:    "",
+			expectErr: true,
 		},
 	}
 	for i, v := range testCases {
-		got := ToQuery(v.body)
-		if got != v.expect {
-			t.Errorf("case %d, expect %q\ngot %q", i+1, v.expect, got)
+		got, err := ToQuery(v.body)
+		if got != v.expect || (err != nil) != v.expectErr {
+			t.Errorf("case %d, expect %q\ngot %q err=%v", i+1, v.expect, got, err)
 		}
 	}
 }

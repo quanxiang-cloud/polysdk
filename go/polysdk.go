@@ -19,16 +19,10 @@ func NewPolyClient(configPath string) (*PolyClient, error) {
 		return nil, err
 	}
 
-	// bodySign, err := newSignatureTemplate(cfg.Key.AccessKeyID)
-	// if err != nil {
-	// 	return nil, err
-	// }
-
 	return &PolyClient{
 		remoteURL:   cfg.RemoteURL,
 		accessKeyID: cfg.Key.AccessKeyID,
 		sign:        sign,
-		//bodySign:    bodySign,
 		httpClient: http.Client{
 			Transport: &http.Transport{
 				Dial: func(netw, addr string) (net.Conn, error) {
@@ -52,6 +46,5 @@ type PolyClient struct {
 	remoteURL   string
 	accessKeyID string
 	sign        signature.Signer
-	//bodySign    *signatureTemplate
-	httpClient http.Client
+	httpClient  http.Client
 }

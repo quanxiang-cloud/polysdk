@@ -6,9 +6,10 @@ import (
 	"testing"
 )
 
-func TestIgnoreFiledTag(t *testing.T) {
-	body := `this is ignore name field(body)`
+func TestRaiseUpFiledTag(t *testing.T) {
+	body := `this is raise up field(body)`
 	var testCase = PolySignatureInfo{
+		Signature:   "this is XBodyPolySignSignature",
 		AccessKeyID: "this is XHeaderPolySignKeyID",
 		Timestamp:   "this is XHeaderPolySignTimestamp",
 		SignMethod:  "this is XHeaderPolySignMethod",
@@ -37,5 +38,6 @@ func TestIgnoreFiledTag(t *testing.T) {
 	verify(XHeaderPolySignMethod, testCase.SignMethod)
 	verify(XHeaderPolySignKeyID, testCase.AccessKeyID)
 	verify(XHeaderPolySignTimestamp, testCase.Timestamp)
+	verify(XBodyPolySignSignature, testCase.Signature)
 	verify(XPolyRaiseUpFieldName, body)
 }

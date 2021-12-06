@@ -15,9 +15,7 @@ func (c *PolyClient) PolyAPIRequest(fullNamespace string, method string, header 
 // fullNamespace is the full namespace of poly api. eg: /system/poly/sample_poly_api
 func (c *PolyClient) PolyAPIDoc(fullNamespace string, docType string, titleFirst bool) (*HTTPResponse, error) {
 	d := apiDocReq{
-		BodyBase: BodyBase{
-			//Signature: c.bodySign.genBodySignature(),
-		},
+		BodyBase:   BodyBase{},
 		DocType:    docType,
 		TitleFirst: titleFirst,
 	}

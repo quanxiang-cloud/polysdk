@@ -11,12 +11,12 @@ import (
 )
 
 // ToQuery convert any date to http GET query parameter with ordered.
-func ToQuery(data interface{}) string {
+func ToQuery(data interface{}) (string, error) {
 	buf := bytes.NewBuffer(nil)
 	if err := buildQuery("", data, buf, 0); err != nil {
-		return ""
+		return "", err
 	}
-	return trimQuery(buf.String())
+	return trimQuery(buf.String()), nil
 }
 
 func buildQuery(name string, d interface{}, buf *bytes.Buffer, depth int) error {
@@ -50,9 +50,9 @@ func buildQuery(name string, d interface{}, buf *bytes.Buffer, depth int) error 
 				if mp, ok := raise.(map[string]interface{}); ok {
 					for k, c := range mp {
 						// TODO: handle duplication?
-						// if _, ok := v[k]; ok {
-						// 	return fmt.Errorf("duplicate field %s between root and raise up fields", k)
-						// }
+						if _, ok := v[k]; ok {
+							return fmt.Errorf("duplicate field %s between root and raise up fields", k)
+						}
 						v[k] = c
 					}
 				} else {

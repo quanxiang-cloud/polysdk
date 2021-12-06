@@ -1,17 +1,13 @@
 // Package polysign is signature defines for polyapi
 package polysign
 
-import (
-	"encoding/json"
-)
-
 // signature header
 const (
 	XHeaderPolySignVersion   = "X-Polysign-Version"
 	XHeaderPolySignMethod    = "X-Polysign-Method"
 	XHeaderPolySignKeyID     = "X-Polysign-Access-Key-Id"
 	XHeaderPolySignTimestamp = "X-Polysign-Timestamp"
-	XHeaderPolySignSignature = "X-Polysign-Signature" // NOTE: client signature result
+	XBodyPolySignSignature   = "x_polyapi_signature" // NOTE: client signature result
 )
 
 // signature header value
@@ -36,15 +32,3 @@ const (
 	// eg: {"a":1,"b":2} is the same as {"a":1,"$$*_raise_*$$":{"b":2}}
 	XPolyRaiseUpFieldName = "$$*_raise_*$$"
 )
-
-// PolySignatureInfo is the data structure for signature generator
-type PolySignatureInfo struct {
-	AccessKeyID string `json:"X-Polysign-Access-Key-Id"` // header
-	Timestamp   string `json:"X-Polysign-Timestamp"`     // header
-	SignMethod  string `json:"X-Polysign-Method"`        // header
-	SignVersion string `json:"X-Polysign-Version"`       // header
-
-	// NOTE: body XPolyIgnoreFieldName defined, signature will ignore name for this field
-	// Body:{Child:foo} will generate as Child=foo in query
-	Body json.RawMessage `json:"$$*_raise_*$$"`
-}

@@ -13,10 +13,6 @@ import (
 
 // header define
 const (
-	// HeaderSignature = "Signature"  // "Signature" in header
-	// BodySinature    = "_signature" // _signature in body
-	// BodyHide        = "_hide"      // _hide in body
-
 	HeaderContentType = "Content-Type"
 )
 
@@ -53,11 +49,11 @@ const (
 
 // BodyBase is base struct of body
 type BodyBase struct {
-	// {"version":1,"method":"HmacSHA256","access_key_id":"$access_key_id$","timestamp":"2006-01-02T15:04:05-0700"}
-	//Signature json.RawMessage `json:"_signature"`
-
-	// path and other hide parameter
+	// NOTE: path and other hide parameter
 	PolyHide map[string]interface{} `json:"$polyapi_hide$,omitempty"`
+
+	// NOTE: none-object customer body root
+	CustomerBody interface{} `json:"$body$,omitempty"`
 }
 
 // HTTPResponse is the response of http request
@@ -107,13 +103,8 @@ func (b CustomBody) Set(name string, data interface{}) bool {
 	return b.add(name, data, true)
 }
 
-// // SetSignature set bodySignature for custome body
-// func (b CustomBody) SetSignature(c *PolyClient) bool {
-// 	return b.add(BodySinature, c.bodySign.genBodySignature(), true)
-// }
-
 func (b CustomBody) add(name string, data interface{}, force bool) bool {
-	if _, ok := b[name]; !ok && !force {
+	if _, ok := b[name]; ok && !force {
 		return false
 	}
 	b[name] = data
@@ -122,22 +113,13 @@ func (b CustomBody) add(name string, data interface{}, force bool) bool {
 
 // NewCustomBody generate a custom body with signature
 func (c *PolyClient) NewCustomBody() CustomBody {
-	return CustomBody{
-		//BodySinature: c.GenBodySignature(),
-	}
+	return CustomBody{}
 }
 
 // MakeBodyBase create a BodyBase with signature
 func (c *PolyClient) MakeBodyBase() BodyBase {
-	return BodyBase{
-		//Signature: c.GenBodySignature(),
-	}
+	return BodyBase{}
 }
-
-// // GenBodySignature generate body signature
-// func (c *PolyClient) GenBodySignature() json.RawMessage {
-// 	return json.RawMessage(c.bodySign.genBodySignature())
-// }
 
 // HTTPRequest do a custom http request
 func (c *PolyClient) HTTPRequest(reqURL, method string, header Header, data []byte) (*http.Response, error) {
@@ -152,7 +134,10 @@ func (c *PolyClient) HTTPRequest(reqURL, method string, header Header, data []by
 
 	var reader io.Reader
 	if method == MethodGet { // data to query if method is 'GET'
-		uri.RawQuery = signature.ToQuery(data)
+		uri.RawQuery, err = signature.ToQuery(data)
+		if err != nil {
+			return nil, err
+		}
 	} else {
 		reader = bytes.NewReader(data)
 	}
@@ -177,6 +162,8 @@ func (c *PolyClient) GenHeaderSignature(header Header, body interface{}) ([]byte
 	var b []byte
 	var err error
 	switch d := body.(type) {
+	case json.RawMessage:
+		b = []byte(d)
 	case []byte:
 		b = d
 	default:
@@ -185,26 +172,59 @@ func (c *PolyClient) GenHeaderSignature(header Header, body interface{}) ([]byte
 		}
 	}
 
-	signInfo := polysign.PolySignatureInfo{
-		AccessKeyID: c.accessKeyID,
-		SignMethod:  polysign.XHeaderPolySignMethodVal,
-		SignVersion: polysign.XHeaderPolySignVersionVal,
-		Timestamp:   timestamp(),
-		Body:        b,
+	var signInfo CustomBody
+	if err := json.Unmarshal(b, &signInfo); err != nil {
+		return nil, err
 	}
 
-	signature, err := c.sign.Signature(&signInfo)
+	var (
+		signVals = [][2]string{
+			{polysign.XHeaderPolySignKeyID, c.accessKeyID},
+			{polysign.XHeaderPolySignMethod, polysign.XHeaderPolySignMethodVal},
+			{polysign.XHeaderPolySignVersion, polysign.XHeaderPolySignVersionVal},
+			{polysign.XHeaderPolySignTimestamp, timestamp()},
+		}
+		opSignVals = func(fn func(string, string) error) error {
+			for _, v := range signVals {
+				if err := fn(v[0], v[1]); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+		opAddBodyHeader = func(name, val string) error {
+			if name != polysign.XBodyPolySignSignature {
+				header.Set(name, val)
+			}
+			if !signInfo.Add(name, val) {
+				err = fmt.Errorf("duplicate field %s in body", name)
+				return err
+			}
+			return nil
+		}
+		opDelBody = func(name, val string) error {
+			delete(signInfo, name)
+			return nil
+		}
+	)
+
+	if err := opSignVals(opAddBodyHeader); err != nil {
+		return nil, err
+	}
+
+	signature, err := c.sign.Signature(signInfo)
 	if err != nil {
 		return nil, err
 	}
-	header.Set(polysign.XHeaderPolySignVersion, signInfo.SignVersion)
-	header.Set(polysign.XHeaderPolySignMethod, signInfo.SignMethod)
-	header.Set(polysign.XHeaderPolySignKeyID, signInfo.AccessKeyID)
-	header.Set(polysign.XHeaderPolySignTimestamp, signInfo.Timestamp)
+	if err := opAddBodyHeader(polysign.XBodyPolySignSignature, signature); err != nil {
+		return nil, err
+	}
 
-	header.Set(polysign.XHeaderPolySignSignature, signature)
+	if err := opSignVals(opDelBody); err != nil {
+		return nil, err
+	}
 
-	return b, nil
+	return json.Marshal(signInfo)
 }
 
 func validateHTTPMethod(method string) error {

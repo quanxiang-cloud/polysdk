@@ -77,9 +77,10 @@ type hmacHash struct {
 
 // Signature generate signature for data
 func (h *hmacHash) Signature(data interface{}) (string, error) {
-	query := ToQuery(data)
-	// println(query)
-	// println(_toRawQuery(data))
+	query, err := ToQuery(data)
+	if err != nil {
+		return "", err
+	}
 
 	signatureBytes, err := h.hash([]byte(query))
 	if err != nil {
@@ -87,6 +88,10 @@ func (h *hmacHash) Signature(data interface{}) (string, error) {
 	}
 
 	signature := stringEncoder.EncodeToString(signatureBytes)
+
+	//println(query)
+	//println(signature)
+
 	return signature, nil
 }
 

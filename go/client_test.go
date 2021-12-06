@@ -37,14 +37,14 @@ func _TestClient(t *testing.T) {
 	polysdk.PrettyShow(r)
 }
 
-func TestRawRequest(t *testing.T) {
+func _TestRawRequest(t *testing.T) {
 	body := polysdk.CustomBody{
 		//"time_stamp": polysdk.Timestamp(""),
 		//"zone":       "pek3d",
 		polysdk.XPolyBodyHideArgs: map[string]interface{}{
 			"app": "appX",
 		},
-		polysdk.XPolyCustomerBodyRoot: "foo",
+		//polysdk.XPolyCustomerBodyRoot: "foo",
 	}
 
 	h := polysdk.Header{}
@@ -61,9 +61,9 @@ func TestRawRequest(t *testing.T) {
 	polysdk.PrettyShow(r)
 }
 
-func _TestRawDoc(t *testing.T) {
+func TestRawDoc(t *testing.T) {
 	apiPath := "/system/app/gskgx/raw/customer/a/bb.r"
-	r, err := c.RawAPIDoc(apiPath, polysdk.DocJavascript, true)
+	r, err := c.RawAPIDoc(apiPath, polysdk.DocRaw, true)
 	if err != nil {
 		panic(err)
 	}
