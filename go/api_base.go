@@ -75,11 +75,18 @@ func (c *PolyClient) DoRequestAPI(apiPath string, method string, header Header, 
 	if err != nil {
 		return nil, err
 	}
-	respBody, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
+
+	var respBody []byte
+	if resp.StatusCode == http.StatusOK {
+		b, err := io.ReadAll(resp.Body)
+		if err != nil {
+			return nil, err
+		}
+		resp.Body.Close()
+		respBody = b
+	} else {
+		respBody = []byte(fmt.Sprintf(`%q`, resp.Status))
 	}
-	resp.Body.Close()
 
 	r := &HTTPResponse{
 		Body:       respBody,
