@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"polysdk/internal/hash"
 	"polysdk/internal/polysign"
 	"polysdk/internal/signature"
 )
@@ -14,6 +15,7 @@ import (
 // header define
 const (
 	HeaderContentType = "Content-Type"
+	HeaderXRequestID  = "X-Request_id"
 )
 
 // Header exports
@@ -178,6 +180,8 @@ func (c *PolyClient) GenHeaderSignature(header Header, body interface{}) ([]byte
 			return nil, err
 		}
 	}
+
+	header.Set(HeaderXRequestID, hash.ShortID(0))
 
 	var signInfo CustomBody
 	if err := json.Unmarshal(b, &signInfo); err != nil {
