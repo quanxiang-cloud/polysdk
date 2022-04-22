@@ -43,6 +43,7 @@ func NewPolyClient(configPath string) (*PolyClient, error) {
 
 // PolyClient is a client for polyapi
 type PolyClient struct {
+	timeAdjust  time.Duration // adjust time clock with server
 	remoteURL   string
 	accessKeyID string
 	sign        signature.Signer

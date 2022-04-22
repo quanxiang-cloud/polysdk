@@ -16,6 +16,8 @@ func init() {
 }
 
 func _TestClient(t *testing.T) {
+	accessToken := ""
+
 	body := map[string]interface{}{
 		"zone":   "pek3d",
 		"active": -1,
@@ -25,6 +27,9 @@ func _TestClient(t *testing.T) {
 
 	h := polysdk.Header{}
 	h.Set(polysdk.HeaderContentType, "application/json")
+	if accessToken != "" {
+		h.Set("Access-Token", accessToken)
+	}
 
 	uris := []string{
 		"/api/v1/polyapi/namespace/create/system/app/swhnm/poly",
@@ -54,7 +59,7 @@ func _TestRawRequest(t *testing.T) {
 	polysdk.PrettyShow(r)
 }
 
-func TestRawDoc(t *testing.T) {
+func _TestRawDoc(t *testing.T) {
 	apiPath := "/system/app/gskgx/raw/customer/a/bb.r"
 	r, err := c.RawAPIDoc(apiPath, polysdk.DocRaw, true)
 	if err != nil {

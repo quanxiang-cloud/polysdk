@@ -39,6 +39,8 @@ polykit v
 	if err != nil {
 		panic(err)
 	}
+	c.SyncServerClock() // adjust local clock with server
+	
 	h := polysdk.Header{}
 	h.Set("Content-Type", "application/json")
 	body := map[string]interface{}{

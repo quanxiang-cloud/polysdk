@@ -193,7 +193,7 @@ func (c *PolyClient) GenHeaderSignature(header Header, body interface{}) ([]byte
 			{polysign.XHeaderPolySignKeyID, c.accessKeyID},
 			{polysign.XHeaderPolySignMethod, polysign.XHeaderPolySignMethodVal},
 			{polysign.XHeaderPolySignVersion, polysign.XHeaderPolySignVersionVal},
-			{polysign.XHeaderPolySignTimestamp, timestamp()},
+			{polysign.XHeaderPolySignTimestamp, c.polyTimestamp()},
 		}
 		opSignVals = func(fn func(string, string) error) error {
 			for _, v := range signVals {
