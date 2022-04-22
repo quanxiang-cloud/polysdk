@@ -19,7 +19,7 @@ func NewPolyClient(configPath string) (*PolyClient, error) {
 		return nil, err
 	}
 
-	return &PolyClient{
+	r := &PolyClient{
 		remoteURL:   cfg.RemoteURL,
 		accessKeyID: cfg.Key.AccessKeyID,
 		sign:        sign,
@@ -38,12 +38,16 @@ func NewPolyClient(configPath string) (*PolyClient, error) {
 				DisableKeepAlives: false,
 			},
 		},
-	}, nil
+	}
+	if err := r.SyncServerClock(); err != nil {
+		return nil, err
+	}
+	return r, nil
 }
 
 // PolyClient is a client for polyapi
 type PolyClient struct {
-	timeAdjust  time.Duration // adjust time clock with server
+	timeAdjust  int64 // adjust time clock with server
 	remoteURL   string
 	accessKeyID string
 	sign        signature.Signer

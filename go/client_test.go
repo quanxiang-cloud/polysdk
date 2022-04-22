@@ -2,7 +2,9 @@ package polysdk_test
 
 import (
 	"polysdk"
+	"polysdk/internal/polysign"
 	"testing"
+	"time"
 )
 
 var c *polysdk.PolyClient
@@ -15,13 +17,15 @@ func init() {
 	c = _c
 }
 
-func _TestClient(t *testing.T) {
+func TestClient(t *testing.T) {
 	accessToken := ""
 
 	body := map[string]interface{}{
-		"zone":   "pek3d",
-		"active": -1,
-		"name":   "test3",
+		"rand":          "r8xv2de",
+		"pingTimestamp": time.Now().Format(polysign.PingTimestampFmt),
+		"zone":          "pek3d",
+		"active":        -1,
+		"name":          "test3",
 	}
 	polysdk.PrettyShow(body)
 
@@ -34,6 +38,7 @@ func _TestClient(t *testing.T) {
 	uris := []string{
 		"/api/v1/polyapi/namespace/create/system/app/swhnm/poly",
 	}
+
 	r, err := c.DoRequestAPI(uris[len(uris)-1], polysdk.MethodPost, h, body)
 	if err != nil {
 		panic(err)

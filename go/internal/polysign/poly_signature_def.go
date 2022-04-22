@@ -16,6 +16,7 @@ const (
 	XHeaderPolySignMethodVal    = "HmacSHA256"
 	ISO8601                     = "2006-01-02T15:04:05-0700" // ISO8601
 	XHeaderPolySignTimestampFmt = ISO8601
+	PingTimestampFmt            = "2006-01-02T15:04:05.999999-0700"
 )
 
 // special body field define
@@ -32,3 +33,15 @@ const (
 	// eg: {"a":1,"b":2} is the same as {"a":1,"$$*_raise_*$$":{"b":2}}
 	XPolyRaiseUpFieldName = "$$*_raise_*$$"
 )
+
+// PingReq if request of ping
+type PingReq struct {
+	Rand          string `json:"rand"`
+	PingTimestamp string `json:"pingTimestamp"`
+}
+
+// PingResp is response of ping
+type PingResp struct {
+	PingReq
+	PongTimestamp string `json:"pongTimestamp"`
+}
